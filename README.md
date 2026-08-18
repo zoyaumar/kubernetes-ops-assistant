@@ -14,26 +14,28 @@ The system collects Kubernetes events and logs, indexes them, retrieves relevant
 
 ## Architecture
 
-                  ┌──────────────┐
-                  │   React UI   │
-                  └──────┬───────┘
-                         │
-                         ▼
-                  ┌──────────────┐
-                  │ Node/TS API  │
-                  │    + RAG     │
-                  └──────┬───────┘
-                         │
-                 ┌───────┴────────┐
-                 ▼                ▼
-          Structured search   Vector search
-                 │                │
-                 └───────┬────────┘
-                         ▼
-                ┌─────────────────┐
-                │ PostgreSQL      │
-                │ + pgvector      │
-                └─────────────────┘
+```text
+                         ┌──────────────┐
+                         │   React UI   │
+                         └──────┬───────┘
+                                │
+                                ▼
+                         ┌──────────────┐
+                         │ Node/TS API  │
+                         │    + RAG     │
+                         └──────┬───────┘
+                                │
+                       ┌────────┴─────────┐
+                       ▼                  ▼
+                Structured search   Vector search
+                       │                  │
+                       └────────┬─────────┘
+                                ▼
+                       ┌─────────────────┐
+                       │   PostgreSQL    │
+                       │   + pgvector    │
+                       └─────────────────┘
+
 
  Kubernetes API
        │
@@ -42,7 +44,7 @@ The system collects Kubernetes events and logs, indexes them, retrieves relevant
 │   Watcher   │────►│    NATS     │────►│   Indexer    │
 │   Python    │     │  JetStream  │     │    Python    │
 └─────────────┘     └─────────────┘     └──────────────┘
-````
+```
 
 Local development runs on a lightweight **kind** Kubernetes cluster.
 
@@ -55,7 +57,7 @@ Local development runs on a lightweight **kind** Kubernetes cluster.
 * **Messaging:** NATS JetStream
 * **Database:** PostgreSQL + pgvector
 * **LLM:** Groq (free tier)
-* **Embeddings:** local open-source model
+* **Embeddings:** Local open-source model
 * **Autoscaling:** KEDA
 * **Observability:** Prometheus + Grafana + OpenTelemetry
 * **Frontend:** React
@@ -86,16 +88,16 @@ Stable event IDs and database uniqueness constraints make duplicate processing s
 
 ### Hybrid RAG
 
-Combine:
+Combine multiple retrieval strategies:
 
 ```text
-structured filters
-+
-time filtering
-+
-vector similarity
-+
-ranking
+Structured filters
+        +
+Time filtering
+        +
+Vector similarity
+        +
+Ranking
 ```
 
 ### Provider abstraction
@@ -134,19 +136,20 @@ The indexer scales based on the NATS message backlog.
 
 ---
 
-## Repository
+## Repository Structure
 
 ```text
 apps/
-  watcher/       # Kubernetes events/logs → NATS
-  indexer/       # NATS → PostgreSQL + embeddings
-  api/           # Auth + retrieval + RAG + LLM
-frontend/        # React UI
-db/              # PostgreSQL schema/migrations
-k8s/             # Kubernetes manifests
-evals/           # RAG evaluation
-docs/            # Architecture + ADRs
-scripts/         # Local/demo scripts
+├── watcher/       # Kubernetes events/logs → NATS
+├── indexer/       # NATS → PostgreSQL + embeddings
+└── api/           # Auth + retrieval + RAG + LLM
+
+frontend/          # React UI
+db/                # PostgreSQL schema/migrations
+k8s/               # Kubernetes manifests
+evals/             # RAG evaluation
+docs/              # Architecture + ADRs
+scripts/           # Local/demo scripts
 ```
 
 ---
@@ -171,7 +174,7 @@ make kind-up
 make bootstrap
 ```
 
-Configure:
+Configure the environment:
 
 ```env
 GROQ_API_KEY=...
@@ -188,7 +191,7 @@ OOMKilled
 CrashLoopBackOff
 ImagePullBackOff
 FailedScheduling
-failed deployment rollout
+Failed deployment rollout
 ```
 
 Then ask the assistant why the incident occurred and receive a grounded explanation backed by cluster evidence.
@@ -198,4 +201,3 @@ Then ask the assistant why the incident occurred and receive a grounded explanat
 ## License
 
 MIT
-
