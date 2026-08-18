@@ -1,5 +1,3 @@
-```
-
 # Kubernetes Ops Assistant
 
 > 🚧 **Work in Progress**
@@ -201,4 +199,3 @@ Then ask the assistant why the incident occurred and receive a grounded explanat
 
 MIT
 
-```
