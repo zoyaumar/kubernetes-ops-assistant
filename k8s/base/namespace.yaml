@@ -1,0 +1,8 @@
+# Kubernetes Ops Assistant — Namespace
+# All application resources are deployed into this namespace.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: k8s-ops
+  labels:
+    app.kubernetes.io/part-of: k8s-ops-assistant

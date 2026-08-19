@@ -1,0 +1,51 @@
+# API (Node/TypeScript) Deployment
+#
+# TODO(week-5): add JWT_SECRET from a Kubernetes Secret
+# TODO(week-5): add GROQ_API_KEY from a Kubernetes Secret
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: k8s-ops
+  labels:
+    app.kubernetes.io/name: api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: k8s-ops-assistant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/YOUR_GITHUB_USER/api:latest  # TODO: replace with git-sha tag
+          env:
+            - name: API_PORT
+              value: "3000"
+            - name: POSTGRES_DSN
+              value: postgresql://k8s_ops:changeme@postgres.k8s-ops.svc.cluster.local:5432/k8s_ops
+            - name: EMBEDDING_DIM
+              value: "384"
+            - name: LLM_PROVIDER
+              value: groq
+            - name: LOG_LEVEL
+              value: info
+            # TODO: mount JWT_SECRET and GROQ_API_KEY from Secret
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

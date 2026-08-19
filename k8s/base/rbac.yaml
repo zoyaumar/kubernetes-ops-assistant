@@ -1,0 +1,38 @@
+# RBAC for the watcher service.
+#
+# Design: least privilege.
+# The watcher only needs READ access to cluster state.
+# It does NOT need create/update/patch/delete on any resource.
+#
+# Scope: ClusterRole so the watcher can observe events across all namespaces.
+# If namespace-isolation is added later, switch to namespace-scoped Roles.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: k8s-ops-watcher
+  labels:
+    app.kubernetes.io/component: watcher
+    app.kubernetes.io/part-of: k8s-ops-assistant
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "events", "nodes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: k8s-ops-watcher
+  labels:
+    app.kubernetes.io/component: watcher
+    app.kubernetes.io/part-of: k8s-ops-assistant
+subjects:
+  - kind: ServiceAccount
+    name: k8s-ops-watcher
+    namespace: k8s-ops
+roleRef:
+  kind: ClusterRole
+  name: k8s-ops-watcher
+  apiGroup: rbac.authorization.k8s.io

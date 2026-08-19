@@ -1,0 +1,55 @@
+# NATS JetStream — single node for local/demo use.
+#
+# TODO(week-3): add JetStream storage configuration
+# TODO(week-3): add liveness/readiness probes
+# TODO(week-7): configure Prometheus monitoring endpoint
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats
+  namespace: k8s-ops
+  labels:
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/part-of: k8s-ops-assistant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nats
+  template:
+    metadata:
+      labels:
+        app: nats
+    spec:
+      containers:
+        - name: nats
+          image: nats:2.10-alpine
+          args:
+            - "-js"              # Enable JetStream
+            - "-m=8222"         # Enable monitoring endpoint
+          ports:
+            - containerPort: 4222  # Client port
+            - containerPort: 8222  # HTTP monitoring
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats
+  namespace: k8s-ops
+spec:
+  selector:
+    app: nats
+  ports:
+    - name: client
+      port: 4222
+      targetPort: 4222
+    - name: monitoring
+      port: 8222
+      targetPort: 8222

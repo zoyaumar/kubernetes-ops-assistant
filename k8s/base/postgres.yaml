@@ -1,0 +1,76 @@
+# PostgreSQL with pgvector — single node for local/demo use.
+#
+# Uses ankane/pgvector image which bundles the pgvector extension.
+# Data is persisted via a PersistentVolumeClaim.
+#
+# TODO(week-3): add liveness probe (pg_isready)
+# TODO(week-3): source credentials from a Kubernetes Secret instead of env
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data
+  namespace: k8s-ops
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: k8s-ops
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: k8s-ops-assistant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: pgvector/pgvector:pg16
+          env:
+            # TODO(week-3): replace these with references to a Kubernetes Secret
+            - name: POSTGRES_DB
+              value: k8s_ops
+            - name: POSTGRES_USER
+              value: k8s_ops
+            - name: POSTGRES_PASSWORD
+              value: changeme   # CHANGE BEFORE ANY NON-LOCAL USE
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgres-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: k8s-ops
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432

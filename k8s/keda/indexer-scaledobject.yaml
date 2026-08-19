@@ -1,0 +1,38 @@
+# KEDA ScaledObject for the indexer.
+#
+# Scales the indexer deployment based on the number of pending messages
+# in the NATS JetStream K8S_EVENTS stream.
+#
+# Scaling logic:
+#   0–1  pending   → 1 replica (minReplicaCount)
+#   100  pending   → 2 replicas
+#   500  pending   → 5 replicas
+#   1000 pending   → capped at maxReplicaCount (5 for local demo)
+#
+# Portfolio demonstration:
+#   1. make generate-failure (generates 1000 synthetic events)
+#   2. watch kubectl get pods -n k8s-ops -l app=indexer
+#   3. Observe KEDA scale up as backlog grows
+#   4. Observe scale-down as backlog drains
+#
+# TODO(week-7): verify NATS scaler configuration against installed KEDA version
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: indexer-scaledobject
+  namespace: k8s-ops
+spec:
+  scaleTargetRef:
+    name: indexer
+  minReplicaCount: 1
+  maxReplicaCount: 5
+  pollingInterval: 15   # seconds
+  cooldownPeriod: 60    # seconds before scaling down
+  triggers:
+    - type: nats-jetstream
+      metadata:
+        natsServerMonitoringEndpoint: nats.k8s-ops.svc.cluster.local:8222
+        account: $G
+        stream: K8S_EVENTS
+        consumer: INDEXER
+        lagThreshold: "100"   # scale up when pending > 100 per replica

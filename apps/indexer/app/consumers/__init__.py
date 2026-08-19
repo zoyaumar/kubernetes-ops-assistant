@@ -1,0 +1,3 @@
+"""
+NATS JetStream consumer implementation.
+"""

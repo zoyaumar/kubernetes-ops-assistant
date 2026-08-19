@@ -1,0 +1,56 @@
+# OpenTelemetry Collector
+#
+# Receives traces from all services (OTLP gRPC on :4317, HTTP on :4318).
+# Exports to Jaeger or logs for local development.
+#
+# TODO(week-7): configure proper pipelines (traces, metrics, logs)
+# TODO(week-7): add Jaeger or Tempo backend for trace visualization
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  namespace: k8s-ops
+  labels:
+    app.kubernetes.io/name: otel-collector
+    app.kubernetes.io/part-of: k8s-ops-assistant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+    spec:
+      containers:
+        - name: otel-collector
+          image: otel/opentelemetry-collector-contrib:0.102.0
+          ports:
+            - containerPort: 4317   # OTLP gRPC
+            - containerPort: 4318   # OTLP HTTP
+            - containerPort: 8888   # Prometheus metrics
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          # TODO(week-7): mount ConfigMap with otel-collector config.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  namespace: k8s-ops
+spec:
+  selector:
+    app: otel-collector
+  ports:
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318

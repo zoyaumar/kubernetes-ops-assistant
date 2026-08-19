@@ -1,0 +1,36 @@
+[project]
+name = "watcher"
+version = "0.1.0"
+description = "Kubernetes resource watcher — watches Pods, Events, Deployments, and logs; publishes normalized events to NATS JetStream."
+requires-python = ">=3.12"
+dependencies = [
+    "kubernetes>=29.0.0",          # Official Kubernetes Python client
+    "nats-py>=2.7.0",              # Async NATS client with JetStream support
+    "pydantic>=2.7.0",             # Schema validation and serialization
+    "pydantic-settings>=2.3.0",    # Settings from env vars / .env
+    "structlog>=24.2.0",           # Structured JSON logging
+    "prometheus-client>=0.20.0",   # Prometheus metrics exposition
+    "opentelemetry-sdk>=1.25.0",   # OTel tracing SDK
+    "opentelemetry-exporter-otlp-proto-grpc>=1.25.0",  # OTLP gRPC exporter
+    "ulid-py>=1.1.0",              # ULID generation for stable event IDs
+    "aiohttp>=3.9.5",              # Async HTTP server for /health endpoint
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2.0",
+    "pytest-asyncio>=0.23.0",
+    "ruff>=0.4.0",
+    "mypy>=1.10.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "N", "ANN"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

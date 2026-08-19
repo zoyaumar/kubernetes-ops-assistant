@@ -1,0 +1,54 @@
+# Prometheus — scrape config for all application services.
+#
+# All app pods are annotated with:
+#   prometheus.io/scrape: "true"
+#   prometheus.io/port: <port>
+#   prometheus.io/path: /metrics
+#
+# TODO(week-7): configure proper retention, storage, and alerting rules
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: k8s-ops
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: k8s-ops-assistant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.53.0
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.retention.time=7d"
+          ports:
+            - containerPort: 9090
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          # TODO(week-7): mount ConfigMap with scrape config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: k8s-ops
+spec:
+  selector:
+    app: prometheus
+  ports:
+    - port: 9090
+      targetPort: 9090
