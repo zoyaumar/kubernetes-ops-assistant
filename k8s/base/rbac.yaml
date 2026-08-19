@@ -1,11 +1,3 @@
-# RBAC for the watcher service.
-#
-# Design: least privilege.
-# The watcher only needs READ access to cluster state.
-# It does NOT need create/update/patch/delete on any resource.
-#
-# Scope: ClusterRole so the watcher can observe events across all namespaces.
-# If namespace-isolation is added later, switch to namespace-scoped Roles.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:

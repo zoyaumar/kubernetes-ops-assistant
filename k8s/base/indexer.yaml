@@ -1,14 +1,3 @@
-# Indexer Deployment
-#
-# KEDA scales this deployment based on NATS pending message count.
-# See k8s/keda/indexer-scaledobject.yaml.
-#
-# Resource limits are intentionally conservative for local kind clusters.
-# Adjust based on actual measurements.
-#
-# TODO(week-3): add Secret references for POSTGRES_DSN
-# TODO(week-4): add volume for embedding model cache
-# TODO(week-7): add liveness/readiness probes
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,7 +8,7 @@ metadata:
     app.kubernetes.io/component: indexer
     app.kubernetes.io/part-of: k8s-ops-assistant
 spec:
-  replicas: 1  # KEDA will manage this; do not set to 0 manually
+  replicas: 1
   selector:
     matchLabels:
       app: indexer
@@ -27,14 +16,10 @@ spec:
     metadata:
       labels:
         app: indexer
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8081"
-        prometheus.io/path: "/metrics"
     spec:
       containers:
         - name: indexer
-          image: ghcr.io/YOUR_GITHUB_USER/indexer:latest  # TODO: replace with git-sha tag
+          image: indexer:dev
           env:
             - name: CLUSTER_ID
               value: local-kind
@@ -46,14 +31,5 @@ spec:
               value: sentence-transformers/all-MiniLM-L6-v2
             - name: EMBEDDING_DIM
               value: "384"
-            - name: LOG_LEVEL
-              value: info
           ports:
-            - containerPort: 8081  # health + metrics
-          resources:
-            requests:
-              cpu: 200m
-              memory: 512Mi   # sentence-transformers model needs ~300MB
-            limits:
-              cpu: 1000m
-              memory: 1Gi
+            - containerPort: 8081

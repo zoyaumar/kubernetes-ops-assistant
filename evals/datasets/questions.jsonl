@@ -1,0 +1,3 @@
+{"id": "q001", "question": "Why did payments-api crash at 2:14 AM?", "category": "root_cause", "expected_evidence_ids": [], "expected_answer_facts": ["OOMKilled", "256Mi"]}
+{"id": "q002", "question": "How many times did payments-api restart in the last hour?", "category": "restart_count", "expected_evidence_ids": [], "expected_answer_facts": []}
+{"id": "q003", "question": "Why did the database fail six months ago?", "category": "no_evidence", "expected_evidence_ids": [], "expected_answer_facts": ["Insufficient evidence"]}

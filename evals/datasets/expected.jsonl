@@ -1,0 +1,3 @@
+{"id": "q001", "confidence": "high", "required_facts": ["OOMKilled", "memory limit"], "citation_required": true}
+{"id": "q002", "confidence": "medium", "required_facts": [], "citation_required": true}
+{"id": "q003", "confidence": "insufficient", "required_facts": ["Insufficient evidence"], "citation_required": false}

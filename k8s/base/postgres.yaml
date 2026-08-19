@@ -1,10 +1,3 @@
-# PostgreSQL with pgvector — single node for local/demo use.
-#
-# Uses ankane/pgvector image which bundles the pgvector extension.
-# Data is persisted via a PersistentVolumeClaim.
-#
-# TODO(week-3): add liveness probe (pg_isready)
-# TODO(week-3): source credentials from a Kubernetes Secret instead of env
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -39,25 +32,17 @@ spec:
         - name: postgres
           image: pgvector/pgvector:pg16
           env:
-            # TODO(week-3): replace these with references to a Kubernetes Secret
             - name: POSTGRES_DB
               value: k8s_ops
             - name: POSTGRES_USER
               value: k8s_ops
             - name: POSTGRES_PASSWORD
-              value: changeme   # CHANGE BEFORE ANY NON-LOCAL USE
+              value: changeme
           ports:
             - containerPort: 5432
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
-          resources:
-            requests:
-              cpu: 200m
-              memory: 256Mi
-            limits:
-              cpu: 1000m
-              memory: 1Gi
       volumes:
         - name: data
           persistentVolumeClaim:

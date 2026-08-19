@@ -1,5 +1,3 @@
-# Kubernetes Ops Assistant — Namespace
-# All application resources are deployed into this namespace.
 apiVersion: v1
 kind: Namespace
 metadata:

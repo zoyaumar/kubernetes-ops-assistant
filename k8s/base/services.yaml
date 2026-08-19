@@ -1,5 +1,3 @@
-# Services for API and Frontend
-# NATS and PostgreSQL services are defined in their respective files.
 apiVersion: v1
 kind: Service
 metadata:

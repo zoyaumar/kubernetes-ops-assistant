@@ -1,0 +1,24 @@
+name: Security
+
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 9 * * 1'
+
+jobs:
+  dependency-audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - name: pip-audit watcher
+        run: cd apps/watcher && uv run pip-audit || true
+      - name: pip-audit indexer
+        run: cd apps/indexer && uv run pip-audit || true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: npm audit api
+        run: cd apps/api && npm audit --audit-level=high || true
